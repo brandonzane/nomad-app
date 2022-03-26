@@ -1,4 +1,5 @@
 import { useNavigation } from "@react-navigation/core";
+import nomad from "../assets/NOMAD.png";
 import { View, Text, Button, ImageBackground, TouchableOpacity } from "react-native";
 import React, { useLayoutEffect } from "react";
 import useAuth from "../hooks/useAuth";
@@ -19,10 +20,15 @@ const LoginScreen = () => {
         <ImageBackground
         resizeMode="cover"
         style={tw`flex-1`}
-          source={{ uri: "https://tinder.com/static/tinder.png" }}
+          source={{ uri: "https://assets.bwbx.io/images/users/iqjWHBFdfxIU/iTdEptqNukjs/v1/-1x-1.jpg" }}
         >
-          <TouchableOpacity style={tw`absolute bottom-40 w-52`}>
-            <Text>Sign In and Get Travelling</Text>
+          <TouchableOpacity
+           style={[tw`absolute bottom-40 w-52 bg-white p-4 rounded-2xl`,
+            { marginHorizontal: `25%`}
+            ]}
+            onPress={signInWithGoogle}
+            >
+            <Text style={tw`font-bold text-center text-black`}>Begin My Journey</Text>
           </TouchableOpacity>
         </ImageBackground>
       </View>
