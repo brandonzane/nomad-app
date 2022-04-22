@@ -1,6 +1,6 @@
-import { View, Text, Button, TouchableOpacity, Image, Stylesheet } from "react-native";
-import React, { useLayoutEffect } from "react";
-import kLogo from "../assets/k-logo.png";
+import { View, Text, Button, TouchableOpacity, Image, StyleSheet} from "react-native";
+import React, { useRef } from "react";
+import stag from "../assets/stag.png";
 import { useNavigation } from "@react-navigation/core";
 import useAuth from "../hooks/useAuth";
 import { SafeAreaView } from "react-native-safe-area-context"
@@ -9,6 +9,13 @@ import {Ionicons, Entypo} from'@expo/vector-icons'
 import Swiper from 'react-native-deck-swiper';
 
 const DUMMY_DATA=[
+  {
+    firstName:'Brandon',
+    lastName:'Mushori',
+    occupation:'Software Engineer',
+    photoURL:'https://brandonzane.com/assets/img/profile1.jpg',
+    age:25
+  },
   {
       firstName:'Elizabeth',
       lastName:'Olsen',
@@ -57,6 +64,7 @@ const DUMMY_DATA=[
 const HomeScreen = () => {
   const navigation = useNavigation();
   const { user, logout } = useAuth();
+  const swipeRef = useRef(null);
 
   return (
     <SafeAreaView style={tw`flex-1`}>
@@ -70,10 +78,10 @@ const HomeScreen = () => {
         </TouchableOpacity>
       
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("Modal")}>
           <Image 
-            style={tw`h-14 w-14`}
-            source={ kLogo }
+            style={tw`h-20 w-20`}
+            source={ stag }
           />
         </TouchableOpacity>
 
@@ -86,12 +94,40 @@ const HomeScreen = () => {
       {/* Cards */}
       <View style={tw`flex-1 -mt-6`}>
         <Swiper 
+        ref={swipeRef}
           containerStyle={{backgroundColor: "transparent"}}
           cards={DUMMY_DATA}
           stackSize={2}
           cardIndex={0}
           animateCardOpacity
           verticalSwipe={false}
+          onSwipedLeft={()=>{
+            console.log("Swipe PASS")
+          }}
+          onSwipedRight={()=>{
+            console.log("Swipe MATCH")
+          }}
+          backgroundColor={"#4FD0E9"}
+          overlayLabels={{
+            left: {
+              title:"NOPE",
+                        style:{
+                            label:{
+                                textAlign:'right',
+                                color:'red'
+                            }
+                        }
+                    },
+                    right:{
+                        title:"MATCH",
+                        style:{
+                            label:{
+                                textAlign:'left',
+                                color:'green'
+                            }
+                        }
+                    }
+          }}
           renderCard={(card) => (
             <View style={tw`bg-white h-3/4 rounded-xl`}>
               <Image
@@ -99,7 +135,10 @@ const HomeScreen = () => {
                 source={{ uri: card.photoURL }}
               />
 
-              <View style={tw`absolute bottom-0 bg-white w-full flex-row justify-between items-between h-20 px-6 py-2 rounded-b-xl`}>
+              <View style={[tw
+                `absolute bottom-0 bg-white w-full flex-row justify-between items-center h-20 px-6 py-2 rounded-b-xl`,
+                  styles.cardShadow,
+                ]}>
                 <View>
                   <Text style={tw`text-xl font-bold`}>
                     {card.firstName} {card.lastName}
@@ -117,8 +156,36 @@ const HomeScreen = () => {
         />
       </View>
       {/* End of Cards */}
+      <View style={tw`flex flex-row justify-evenly`}>
+        <TouchableOpacity 
+          onPress={() => swipeRef.current.swipeLeft()}
+          style={tw`items-center justify-center rounded-full w-16 h-15 bg-red-400`}
+        >
+          <Entypo name="cross" color="white" size={36} />
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          onPress={() => swipeRef.current.swipeRight()}
+          style={tw`items-center justify-center rounded-full w-16 h-15 bg-emerald-600`}
+        >
+          <Entypo name="heart" color="white" size={36} />
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
 
 export default HomeScreen;
+
+const styles = StyleSheet.create({
+  cardShadow: {
+      shadowColor:'#000',
+      shadowOffset:{
+          width:0,
+          height:1
+      },
+      shadowOpacity:0.2,
+      shadowRadius:1.41,
+      elevation:2
+  }
+})
