@@ -3,7 +3,6 @@ import { View, Text, Button, ImageBackground, TouchableOpacity } from "react-nat
 import React, { useLayoutEffect } from "react";
 import useAuth from "../hooks/useAuth";
 import tw from "twrnc";
-import { useFonts } from "expo-font";
 
 
 
