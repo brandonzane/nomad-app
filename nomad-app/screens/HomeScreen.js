@@ -9,6 +9,8 @@ import { db } from '../firebase'
 import {Ionicons, Entypo} from'@expo/vector-icons'
 import Swiper from 'react-native-deck-swiper';
 import { doc, onSnapshot, collection, setDoc, query, getDocs, where } from "@firebase/firestore";
+import generateId from '../lib/generateId';
+import { serverTimestamp } from 'firebase/firestore';
 
 const DUMMY_DATA=[
   {
@@ -129,11 +131,45 @@ const HomeScreen = () => {
     if (!profiles[cardIndex]) return;
 
     const userSwiped = profiles[cardIndex];
-    console.log(
-      `You swiped on ${userSwiped.displayName} (${userSwiped.job})`
-    );
-    setDoc(doc(db, 'users', user.uid, 'swipes', userSwiped.id),
-    userSwiped
+    const loggedInProfile = await (
+      await getDoc(doc(db, 'users', user.uid))
+    ).data();
+
+    // Checking if user swiped on you... make sure you put this in a cloud function for production
+    getDoc(doc(db, 'users', userSwiped.id, 'swipes', user.uid)).then(
+      (documentSnapshot) => {
+        if (documentSnapshot.exists()) {
+          // user has matched with you before you matched withg them
+          // Create a Match
+          console.log(`Hooray, You Matched with ${userSwiped.displayName}`);
+
+          setDoc(doc(db, 'users', user.uid, 'swipes', userSwiped.id),
+          userSwiped
+          );
+
+          // CREATE A MATCH!
+          setDoc(doc(db, 'matches', generateId(user.uid, userSwiped.id)),{
+            users: {
+              [user.uid]: loggedInProfile,
+              [userSwiped.id]: userSwiped
+            },
+            usersMatched: [user.uid, userSwiped.id],
+            timestamp: serverTimestamp()
+          });
+          
+            navigation.navigate('Match', {
+              loggedInProfile,
+              userSwiped,
+            });
+        } else {
+          // User has swiped as first interaction between the two or didn't get swiped on...
+
+          console.log(`You swiped on ${userSwiped.displayName} (${userSwiped.job})`
+          );
+          setDoc(
+            doc(db, 'users', user.uid, 'swipes', userSwiped.id),userSwiped);
+        }
+      }
     );
   };
   
